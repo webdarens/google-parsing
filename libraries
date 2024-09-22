@@ -1,6 +1,11 @@
-lxml
-thread6
-beautifulsoup4
-csv
-requests
+selenium
+EdgeChromiumDriverManager
+bs4
 time
+requests
+re
+csv
+os
+random
+concurrent.futures 
+threading

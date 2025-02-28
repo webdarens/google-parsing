@@ -11,7 +11,8 @@ import random
 from concurrent.futures import ThreadPoolExecutor
 from threading import Timer
 from countries import country_codes
-from proxies_settings import ConnectProxies
+from refactor_moment.proxies_settings import ConnectProxies
+
 import typing
 from abc import ABC, abstractmethod
 

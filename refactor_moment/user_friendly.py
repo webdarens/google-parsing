@@ -1,8 +1,13 @@
 import typing
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+
 import requests
-import time
+
 from abc import ABC, abstractmethod
 import undetected_chromedriver as uc
+from selenium.webdriver.support.wait import WebDriverWait
+
 from proxies_settings import ConnectProxies
 
 
@@ -20,6 +25,10 @@ class CreateHeaders:
 class UrlProvider:
     def __init__(self, url: str) -> None:
         self.url = url
+
+    def url_modifier(self):
+        if not self.url.startswith("http://") and not self.url.startswith("https://"):
+            self.url = "http://" + self.url
 
     def get_url(self) -> str:
         return self.url
@@ -51,9 +60,13 @@ class SeleniumFetcher(WebFetcherInterface):
     def create_request(self):
         driver = self.driver_manager.get_driver()
         driver.get(self.url_provider.get_url())
+        # замена фиксированного ожидания на динамическое ожидание загрузки страницы
+        try:
+            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+        except Exception as e:
+            print(f"Ошибка ожидания загрузки страницы: {e}")
 
     def get_request(self):
-        time.sleep(8)
         try:
             return self.driver_manager.get_driver().page_source
         except Exception as e:
@@ -81,21 +94,35 @@ class RequestFetcher(WebFetcherInterface):
         self.response = self.request_web_manager.create_request()
 
     def get_request(self):
-        try:
-            return self.response.text
-        except self.response == False:
+        if self.response is None:
             return None
+        return self.response.text
 
 
-url_provider = UrlProvider("http://httpbin.org/ip")
+class UserInteract:
+    def __init__(self, url, boolConnectProxy):
+        self.url = url
+        self.boolConnectProxy = boolConnectProxy
 
-# Для работы с Request
-request_web_manager = RequestWebManager(url_provider, ConnectProxies(False), CreateHeaders())
-request_fetcher = RequestFetcher(request_web_manager)
-request_fetcher.create_request()
-print(request_fetcher.get_request())
+    def calls_func(self):
+        # обработка Url
+        url_provider = UrlProvider(self.url)
+        url_provider.url_modifier()
 
-# Для работы с Selenium
-selenium_fetcher = SeleniumFetcher(url_provider, SeleniumWebDriverManager())
-selenium_fetcher.create_request()
-print(selenium_fetcher.get_request())
+        # Для работы с Request
+        request_web_manager = RequestWebManager(url_provider, ConnectProxies(self.boolConnectProxy), CreateHeaders())
+        request_fetcher = RequestFetcher(request_web_manager)
+        request_fetcher.create_request()
+        print(request_fetcher.get_request())
+
+        # Для работы с Selenium
+        selenium_fetcher = SeleniumFetcher(url_provider, SeleniumWebDriverManager())
+        selenium_fetcher.create_request()
+        print(selenium_fetcher.get_request())
+
+
+if __name__ == '__main__':
+    url = input()
+    boolConnectProxy = bool(int(input()))
+    userInteract = UserInteract(url, boolConnectProxy)
+    print(userInteract.calls_func())

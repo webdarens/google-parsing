@@ -6,3 +6,5 @@ requests
 futures
 threaded
 request[socks]
+undetected-chromedriver
+setuptools

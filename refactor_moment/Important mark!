@@ -1,0 +1,8 @@
+You can avoid this problem by modifying code in the undetected_chromedriver\__init__.py.
+
+Go to line 798 and wrap the time.sleep(0.1) with try-except block here is how the final code look like
+
+try:
+  time.sleep(0.1)
+except OSError:
+  pass

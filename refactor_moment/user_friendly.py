@@ -3,7 +3,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 
 import requests
-
+import time
 from abc import ABC, abstractmethod
 import undetected_chromedriver as uc
 from selenium.webdriver.support.wait import WebDriverWait
@@ -50,6 +50,9 @@ class SeleniumWebDriverManager:
 
     def get_driver(self):
         return self.driver
+
+    def quit_driver(self):
+        return self.driver.quit()
 
 
 class SeleniumFetcher(WebFetcherInterface):
@@ -122,7 +125,12 @@ class UserInteract:
 
 
 if __name__ == '__main__':
-    url = input()
-    boolConnectProxy = bool(int(input()))
+    # url = input()
+    # boolConnectProxy = bool(int(input()))
+    # userInteract = UserInteract(url, boolConnectProxy)
+    # print(userInteract.calls_func())
+
+    url = "http://httpbin.org/ip"
+    boolConnectProxy = False
     userInteract = UserInteract(url, boolConnectProxy)
     print(userInteract.calls_func())

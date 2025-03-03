@@ -1,13 +1,14 @@
 import typing
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-
+import csv
 import requests
 import time
+import re
 from abc import ABC, abstractmethod
 import undetected_chromedriver as uc
 from selenium.webdriver.support.wait import WebDriverWait
-
+import os
 from proxies_settings import ConnectProxies
 
 
@@ -42,6 +43,32 @@ class WebFetcherInterface(ABC):
     @abstractmethod
     def create_request(self):
         pass
+
+
+class FilePathManager:
+    def __init__(self, search_term) -> None:
+        self.home_dir = os.path.expanduser('~')
+        self.search_term = re.sub(r'[\\/*?:"<>|]', "_", search_term)
+        self.desktop_dir = os.path.join(self.home_dir, 'Desktop')
+        self.path = os.path.join(self.desktop_dir, f'{self.search_term}.csv')
+
+    def get_file_path(self):
+        return self.path
+
+
+class CsvCreator:
+    def __init__(self, filePathManager: FilePathManager) -> None:
+        self.file_path = filePathManager.get_file_path()
+        self.list_of_titles = ['Website', 'Email',
+                               'Instagram', 'Telegram',
+                               'Twitter', 'Discord',
+                               'Facebook', 'Reddit',
+                               'YouTube', 'VK', 'Country']
+
+    def create_titles(self):
+        with open(self.file_path, mode='w', encoding='utf-8', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(self.list_of_titles)
 
 
 class SeleniumWebDriverManager:
@@ -90,11 +117,11 @@ class RequestWebManager:
 
 class RequestFetcher(WebFetcherInterface):
     def __init__(self, requestWebManager: RequestWebManager) -> None:
-        self.request_web_manager = requestWebManager
+        self.requestWebManager = requestWebManager
         self.response = None
 
     def create_request(self):
-        self.response = self.request_web_manager.create_request()
+        self.response = self.requestWebManager.create_request()
 
     def get_request(self):
         if self.response is None:
@@ -103,7 +130,8 @@ class RequestFetcher(WebFetcherInterface):
 
 
 class UserInteract:
-    def __init__(self, url, boolConnectProxy):
+    def __init__(self, url, boolConnectProxy, search_term) -> None:
+        self.search_term = search_term
         self.url = url
         self.boolConnectProxy = boolConnectProxy
 
@@ -111,6 +139,13 @@ class UserInteract:
         # обработка Url
         url_provider = UrlProvider(self.url)
         url_provider.url_modifier()
+
+        # fileManager
+        filePathManager = FilePathManager(self.search_term)
+
+        # csvCreator
+        csvCreator = CsvCreator(filePathManager)
+        csvCreator.create_titles()
 
         # Для работы с Request
         request_web_manager = RequestWebManager(url_provider, ConnectProxies(self.boolConnectProxy), CreateHeaders())
@@ -129,8 +164,8 @@ if __name__ == '__main__':
     # boolConnectProxy = bool(int(input()))
     # userInteract = UserInteract(url, boolConnectProxy)
     # print(userInteract.calls_func())
-
+    name = "ipcreator"
     url = "http://httpbin.org/ip"
     boolConnectProxy = False
-    userInteract = UserInteract(url, boolConnectProxy)
+    userInteract = UserInteract(url, boolConnectProxy, name)
     print(userInteract.calls_func())

@@ -286,7 +286,6 @@ def get_html_with_selenium(url):
     driver = webdriver.Edge(service=driver_path)
     page_nums = [0,100,200,300]
     for page_num in page_nums:
-        pag
         driver.get(url)
 
     while "sorry/index" in driver.current_url:

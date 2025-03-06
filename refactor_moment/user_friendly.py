@@ -92,7 +92,9 @@ class SeleniumFetcher(WebFetcherInterface):
         driver.get(self.url_provider.get_url())
         # замена фиксированного ожидания на динамическое ожидание загрузки страницы
         try:
-            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+            WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.TAG_NAME, "body"))
+            )
         except Exception as e:
             print(f"Ошибка ожидания загрузки страницы: {e}")
 
@@ -111,7 +113,10 @@ class RequestWebManager:
         self.headers = create_headers.get_headers()
 
     def create_request(self):
-        response = requests.get(self.url, proxies=self.proxies, timeout=10, headers=self.headers)
+        response = requests.get(self.url,
+                                proxies=self.proxies,
+                                timeout=10,
+                                headers=self.headers)
         return response
 
 

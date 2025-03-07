@@ -56,7 +56,7 @@ class FilePathManager:
         return self.path
 
 
-class CsvCreator:
+class CsvManager:
     def __init__(self, filePathManager: FilePathManager) -> None:
         self.file_path = filePathManager.get_file_path()
         self.list_of_titles = ['Website', 'Email',
@@ -149,8 +149,8 @@ class UserInteract:
         filePathManager = FilePathManager(self.search_term)
 
         # csvCreator
-        csvCreator = CsvCreator(filePathManager)
-        csvCreator.create_titles()
+        csvManager = CsvManager(filePathManager)
+        csvManager.create_titles()
 
         # Для работы с Request
         request_web_manager = RequestWebManager(url_provider, ConnectProxies(self.boolConnectProxy), CreateHeaders())
